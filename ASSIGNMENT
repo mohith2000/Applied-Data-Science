@@ -1,0 +1,134 @@
+import pandas as pd
+
+df = pd.read_excel(r'C:\Users\Welcome\Downloads\mohith.xlsx')
+df.describe()
+df.head(n=10)
+
+def clean_transpose(df):
+    # Transpose the dataframe
+    transposed = df.transpose()
+
+    # Remove any rows or columns that contain only NaN values
+    cleaned = transposed.dropna(how='all').T.dropna(how='all')
+
+    # Replace any remaining NaN values with zero
+    cleaned = cleaned.fillna(0)
+
+    return cleaned
+    
+    transposed_cleaneddata = clean_transpose(df)
+print( transposed_cleaneddata)
+
+year = []
+value = []
+indicator_code = []
+indicator_name = []
+country_code = []
+country_name = []
+years = [ '1981', '1982', '1983', '1984', '1985', '1986',
+       '1987', '1988', '1989', '1990', '1991', '1992', '1993', '1994', '1995',
+       '1996', '1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004',
+       '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013',
+       '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021' ]
+new_df = pd.DataFrame()
+for idx in years:
+  sub_df = transposed_cleaneddata[['Country Name', 'Country Code', 'Indicator Name', 'Indicator Code',idx]]
+  sub_df.columns = ['Country Name', 'Country Code', 'Indicator Name', 'Indicator Code','value']
+  sub_df['year'] = [idx for i in range(len(sub_df))]
+  
+  new_df = pd.concat([new_df,sub_df],axis=0)
+  
+ #CREATING A LINE DIAGRAM FOR URBAN POPULATION OF TOTAL POPULATION OF FIVE COUNTRIES
+  
+  import seaborn as sns
+import matplotlib.pyplot as plt
+
+#country wise population growth trend
+c_df = new_df[new_df['Indicator Name'] == "Urban population (% of total population)"]
+c_df.index = [i for i in range(len(c_df))]
+
+def yearly_trend(country_name):
+  c_dff = pd.DataFrame()
+  for idx in country_name:
+    c_df_ = c_df[c_df['Country Name'] == idx]
+    c_dff = pd.concat([c_dff,c_df_],axis=0)
+  
+  plt.figure(figsize=(25,5))
+  plt.xticks(rotation='vertical')
+  plt.title("Urban population % of total population")
+  sns.lineplot(data=c_dff, x="year", y="value",hue="Country Code")
+  return None
+
+country_name = ['Aruba',"Afghanistan","Arab World","India","China"]
+yearly_trend(country_name=country_name)
+
+c_df = new_df[new_df['Indicator Name'] == "Urban population"]
+c_df.index = [i for i in range(len(c_df))]
+country_name = ['Aruba',"Afghanistan","Arab World","India"]
+yearly_trend(country_name = country_name)
+
+# CREATING A BOXPLOT FOR THE YEARWISE GROWTH FOR ONE country:
+def yearly_trend(country_name):
+  c_dff = pd.DataFrame()
+  for idx in country_name:
+    c_df_ = c_df[c_df['Country Name'] == idx]
+    c_dff = pd.concat([c_dff,c_df_],axis=0)
+  
+  plt.figure(figsize=(25,5))
+  sns.barplot(data=c_df, x="year", y="value")
+  plt.title("UNITED KINGDOM URBAN POPULATION")
+  return None
+
+country_name = ['United Kingdom']
+yearly_trend(country_name=country_name)
+
+#CREATING A BAR DIGRAM FOR URBAN POPULATION GROWTH OF EACH COUNTRY IN EACH YEAR
+
+def yearly_trend(year,country_name):
+  c_dff = pd.DataFrame()
+  for idx in country_name:
+    c_df_ = c_df[c_df['Country Name'] == idx]
+    c_dff = pd.concat([c_dff,c_df_],axis=0)
+  
+
+  c_dff_ = pd.DataFrame()
+  for idx in year:
+    c_df_ = c_dff[c_dff['year'] == idx]
+    c_dff_ = pd.concat([c_dff_,c_df_],axis=0)
+    
+  # plt.figure(figsize=(25,5))
+  sns.barplot(data=c_dff_, x="Country Code", y="value",hue="year")
+  plt.title("URBAN POPULATION ")
+  return None
+
+year = ["2018","2019",'2020',"2021"]
+country_name = ["India","China","Australia","United Kingdom"]
+
+yearly_trend(year,country_name)
+
+df.head()
+
+#CREATING A BAR DIGRAM 
+def yearly_trend(year,country_name,indicator_name,df):
+  c_df = df[df['Indicator Name'] == indicator_name]
+  c_dff = pd.DataFrame()
+  for idx in country_name:
+    c_df_ = c_df[c_df['Country Name'] == idx]
+    c_dff = pd.concat([c_dff,c_df_],axis=0)
+  
+
+  c_dff_ = pd.DataFrame()
+  for idx in year:
+    c_df_ = c_dff[c_dff['year'] == idx]
+    c_dff_ = pd.concat([c_dff_,c_df_],axis=0)
+    
+  # plt.figure(figsize=(25,5))
+  plt.title(indicator_name)
+  sns.barplot(data=c_dff_, x="Country Code", y="value",hue="year")
+  return None
+
+year = ['1988', '1989', '1990', '1991', '1992']
+country_name = ["India","China"]
+indicator_name = 'CO2 emissions from solid fuel consumption (% of total)'
+yearly_trend(year,country_name,indicator_name,new_df)
+df['Indicator Name'].unique()
